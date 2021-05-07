@@ -1,5 +1,5 @@
-import Head from "next/head";
 import Link from "next/link";
+import Head from "next/head";
 import Footer from "@/organisms/Footer/Footer";
 
 const Home = ({ data }) => {
@@ -13,19 +13,11 @@ const Home = ({ data }) => {
 
       <main>
         <article>
-          {data.map((card) => {
-            return (
-              <article key={card.name + card.id}>
-                <h3>{card.name}</h3>
-                <img
-                  src={`http://159.89.177.40${card.image.url}`}
-                  alt="alt-text"
-                  width="300"
-                />
-                <Link href={`/projects/${card.id}`}>details</Link>
-              </article>
-            );
-          })}
+          <header>
+            <h1>{data.name}</h1>
+            <Link href="/">back</Link>
+          </header>
+          <iframe src={data.page} width="768" height="700" />
         </article>
       </main>
       <Footer>Marcin Czaniecki</Footer>
@@ -33,8 +25,19 @@ const Home = ({ data }) => {
   );
 };
 
+export async function getStaticPaths() {
+  const res = await fetch("http://159.89.177.40/cards");
+  const users = await res.json();
+
+  const paths = users.map((user) => ({
+    params: { id: user.id.toString() },
+  }));
+
+  return { paths, fallback: false };
+}
+
 export async function getStaticProps(context) {
-  const res = await fetch(`http://159.89.177.40/cards`);
+  const res = await fetch(`http://159.89.177.40/cards/${context.params.id}`);
   const data = await res.json();
 
   if (!data) {
